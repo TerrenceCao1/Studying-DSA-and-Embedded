@@ -3,49 +3,74 @@
 
 
 //Implement a Dynamic array (malloc + resize on overflow).
+typedef struct
+	{
+		int* ptr; //pointer to array
+		int size; //current size of array
+		int capacity; //max size without reallocation
+	}DynamArray;
+
+//initiate function
+DynamArray* dyArrayInit(int initialCapacity)
+{
+	DynamArray* arr = (DynamArray*)malloc(sizeof(DynamArray));
+	arr->ptr = (int*)malloc(initialCapacity * sizeof(int));
+	arr->size = 0;
+	arr->capacity = initialCapacity;
+	return arr;
+}
+
+//append function
+void dyArrayAppend(DynamArray* arr, int val)
+{
+	if (arr->size < arr->capacity)
+	{
+		arr->ptr[arr->size] = val;
+		arr->size++;
+	}
+	else
+	{
+		arr->ptr = realloc(arr->ptr, arr->size);
+		arr->capacity++;
+		arr->ptr[arr->size++] = val;
+	}
+}
+
+//free memory funciton
+void freeDyArray(DynamArray* arr)
+{
+	free(arr->ptr);
+	free(arr);
+}
 
 int* insert(int* origArr, int origSize, int index, int value);
 
 int main(void)
 {
-	//Dynamic array
-	int* ptr;
-	int size = 5;
-	
-	ptr = (int*)malloc(size * sizeof(int));
-
-	if (ptr == NULL)
+	DynamArray* myArr = dyArrayInit(10);
+	printf("BEFORE REALLOCATION: \n");
+	for(int i = 0; i < 10; i++)
 	{
-		printf("yo the memory didn't get allocated bud\n");
-		return 1;
+		dyArrayAppend(myArr, i);
 	}
-	
-	//if ptr got malloced:
-	printf("memory allocated\n");
 
-	//resize on overflow:
-		//write insert function -> if the index >= size: realloc enough memory to get to the index
-	insert(ptr, 5, 10, 34);
-
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		printf("ptr[%d] = %d\n", i, ptr[i]);
+		printf("myArr[%d]: %d\n", i, myArr->ptr[i]);
 	}
-	
+
+	printf("AFTER REALLOCATION: \n");
+	for (int i = 10; i < 20; i++)
+	{
+		dyArrayAppend(myArr, i);
+	}
+
+	for (int i = 10; i < 20; i++)
+	{
+		printf("myArr[%d]: %d\n", i, myArr->ptr[i]);
+	}
+
+	freeDyArray(myArr);
+
 	return 0;
 }
-
-int* insert(int* origArr, int origSize, int index, int value)
-{
-	if(index >= value)
-	{
-		origArr = realloc(origArr, (index+1) * sizeof(int));
-		origArr[index] = value;
-	}
-	else
-	{
-		origArr[index] = value;
-	}
-	return origArr;
-}
-
